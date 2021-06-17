@@ -18,7 +18,6 @@ from sklearn import set_config
 from sklearn import metrics
 import scipy as sp
 import sys, getopt,os
-import time
 
 inputfile = ''
 aa = ''
