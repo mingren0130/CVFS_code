@@ -20,8 +20,6 @@ import scipy as sp
 import sys, getopt,os
 
 inputfile = ''
-aa = ''
-bb = ''
 ss = ''
 ex = ''
 se = ''
