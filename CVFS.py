@@ -19,7 +19,6 @@ from sklearn import metrics
 import scipy as sp
 import sys, getopt,os
 import time
-import sys, getopt,os
 
 inputfile = ''
 aa = ''
@@ -67,9 +66,6 @@ if ((ss=="") and (ex=="")):
 print("Number of select=",ss)
 print("Number of executions=",ex)
 print("jobs=",jobs)
-if (ss>ex):
-	print("The number of selections cannot exceed the number of executions")
-	sys.exit(0)
 if os.path.isfile(inputfile):
 	print("file exist")
 else:
@@ -84,8 +80,8 @@ if(isinstance(ex, int)==False):
 if(isinstance(jobs, int)==False):
 	print("jobs number is not int")
 	sys.exit(0)
-if (ex>ss):
-	print("aa cannot exceed bb")
+if (ex<ss):
+	print("select cannot exceed executions")
 	sys.exit(0)
 
 
