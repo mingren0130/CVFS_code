@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from sklearn.svm import SVC
 from sklearn.utils import shuffle
@@ -18,7 +17,6 @@ from sklearn import set_config
 from sklearn import metrics
 import math
 import scipy as sp
-import sys, getopt,os
 
 inputfile = ''
 ss = ''
