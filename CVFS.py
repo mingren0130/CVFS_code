@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from sklearn.svm import SVC
 from sklearn.utils import shuffle
@@ -15,10 +16,13 @@ from sklearn.model_selection import cross_val_predict
 from sklearn.model_selection import KFold
 from sklearn import set_config 
 from sklearn import metrics
-import math
 import scipy as sp
+import sys, getopt,os
+import time
 
 inputfile = ''
+aa = ''
+bb = ''
 ss = ''
 ex = ''
 se = ''
@@ -80,6 +84,8 @@ if (ex<ss):
 	print("select cannot exceed executions")
 	sys.exit(0)
 
+
+import math
 print("Loading file")
 df = pd.read_csv(inputfile,dtype={'genome_id':str})
 print("Loading file Ok")
