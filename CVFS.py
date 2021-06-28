@@ -23,6 +23,7 @@ import time
 import math
 
 inputfile = ''
+outputfile = ''
 aa = ''
 bb = ''
 ss = 0
@@ -32,28 +33,30 @@ cut3 = 2
 jobs = ''
 perc = 0.6
 try:
-	#opts, args = getopt.getopt(sys.argv[1:],"hi:c:e:s:t:r:") 
-	opts, args = getopt.getopt(sys.argv[1:],"hi:c:e:s:t:") 
+	#opts, args = getopt.getopt(sys.argv[1:],"hi:o:c:e:s:t:r:") 
+	opts, args = getopt.getopt(sys.argv[1:],"hi:o:c:e:p:t:") 
 except getopt.GetoptError:
 	print('Cannot get options. Please try again.')                             
 	sys.exit(0)
                                                                  
 for opt, arg in opts:
 	if(opt == '-h'):
-		print('Usage: python3 CVFS.py\n  -i <inputfilename> (please use .csv files) \n  [-c <Number of disjoint sub-parts; default 2>]\n  [-s <Number of repeated runs; default 5] \n  [-e <Features selected by proportions of repeated runs>; default 0.6] \n  [-t <thread number>; default 4]')
+		print('Usage: python3 CVFS.py\n  -i <inputfilename> (please use .csv files) \n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs; default 5] \n  [-p <Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]')
 		sys.exit(0)
 	elif opt == '-i':
 		inputfile = arg
+	elif opt == '-o':
+		outputfile = arg
 	elif opt == '-c':
 		cut3 = arg  
 		cut3 =int(cut3)
-	elif opt == '-s':
+	elif opt == '-e':
 		ex = arg
 		ex =int(ex)
-	elif opt == '-e':
+	elif opt == '-p':
 		perc = arg  
 		perc =float(perc)
-	elif opt == '-o':
+	elif opt == '-t':
 		jobs = arg  
 		jobs =int(jobs)
 	elif opt == '-r':
@@ -61,8 +64,8 @@ for opt, arg in opts:
 		if (se=='c'):
 			select='classification'
 
-if (inputfile==""):
-	print('Usage: python3 CVFS.py\n  -i <inputfilename> (please use .csv files) \n  [-c <Number of disjoint sub-parts; default 3>]\n  [-s <Number of repeated runs; default 5] \n  [-e <Features selected by proportions of repeated runs>; default 0.6] \n  [-t <thread number>; default 4]')
+if (inputfile=="" or outputfile==""):
+	print('Usage: python3 CVFS.py\n  -i <inputfilename> (please use .csv files) \n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs; default 5] \n  [-p <Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]')
 	sys.exit(0)
 if (perc > 1 or perc <= 0):
 	print("Print specify a number between 0 and 1 for proportions of repeated runs.");
@@ -220,11 +223,25 @@ if(se=='c'):
 					datagroupjoin= pd.concat([datagroupjoin, data[XX.columns[line]]], axis=1)
 		model = SVC(kernel='linear')
 		scores = cross_val_score(model, datagroupjoin, y, cv=10, scoring='roc_auc')
-		print("columns value=",datagroupxorr.columns.values)
-		print("columns=" , datagroupxorr.shape[1])
-		print("SVM AVG score=%.4f" % round(scores.mean(),4))
+		#print("columns value=",datagroupxorr.columns.values)
+		outF = open(outputfile, "w")
+		outF.write("Extracted ")
+		outF.write(str(datagroupxorr.shape[1]))
+		outF.write(" features\n")
+		outF.write("Classification accuracy of the dataset using extracted features is ")
+		outF.write(str(round(scores.mean(),4)))
+		outF.write("\n")
+		for line in datagroupxorr.columns.values:
+			outF.write(line)
+			outF.write("\n")
+		outF.close()
+		#print("columns=" , datagroupxorr.shape[1])
+		#print("SVM AVG score=%.4f" % round(scores.mean(),4))
+		print("Extracted", datagroupxorr.shape[1], "features")
+		print("Classification accuracy of the dataset using extracted features is", round(scores.mean(),4));
 	else:
-		print("No cluster in this experiment")
+		#print("No cluster in this experiment")
+		print("Cannot find shared features in this run. Please adjust the parameters.");
 elif(se=='r'):
 	yy = df['new_value']
 	if((datagroupxorr.shape[1])!=0):

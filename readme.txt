@@ -1,17 +1,12 @@
 CVFS
 
-CVFS is a python program that employs a Cross-Validated Feature Selection (CVFS) algorithm for extracting the most related features 
-for classification problems. Currently the program is developed to verify its capability in identifying antimicrobial resistance genes 
-from Salmonella enterica antimicrobial resistance datasets.
+CVFS is a python program that employs a Cross-Validated Feature Selection (CVFS) algorithm for extracting the most related features for classification problems. Currently the program is developed to verify its capability in identifying antimicrobial resistance genes from Salmonella enterica antimicrobial resistance datasets.
 	
-The core idea behind the CVFS program is that the datasets are going to randomly split into distinct sub-parts, in which machine learning 
-feature selection algorithm selected the most plausible features within each sub-part. The selected feature sets from the distinct sub-parts 
-were then intersected to find features shared by all sub-parts. This process were then repeated several times to avoid random effect, 
-and the intersected features selected in most of the repeated runs were then extracted as the final feature set for classifying antimicrobial 
-resistant Salmonella enterica strains. 
+The core idea behind the CVFS program is that the datasets are going to randomly split into distinct sub-parts, in which machine learning feature selection algorithm selected the most plausible features within each sub-part. The selected feature sets from the distinct sub-parts were then intersected to find features shared by all sub-parts. This process were then repeated several times to avoid random effect, and the intersected features selected in most of the repeated runs were then extracted as the final feature set for classifying antimicrobial resistant Salmonella enterica strains. 
 
 Python packge
 
+	math
 	numpy
 	pandas
 	sklearn
@@ -19,13 +14,14 @@ Python packge
 
 Program Usage
 
-	python CVFS.py -i <inputfilename>
+	python CVFS.py 	-i <input filename (please specify .csv file format)>
+			-o <feature output filename>
 
-	Preset parameter
-
-		-s <Select the number of intersections from the number of repetitions>; default 3
-		-e <Number of repeated runs>; default 3
-		-t <thread number>; default 4
+	(optionsl parameters)
+		-c <Number of disjoint sub-parts; default 2>
+		-e <Number of repeated runs>; default 5
+		-p <Proportions of repeated runs for extracting common features>; default 0.6]
+		-t <Thread number>; default 4
 
 Datasets
 
@@ -37,9 +33,12 @@ Datasets
 	$ done
 
 Example command:
-	(simple run using default command; assume running on the ampicillin.csv dataset)
-	$ python3 CVFS.py -i ampicillin.csv
-	(
+	(Simple run using default command; assume running on the ampicillin.csv dataset)
+	$ python3 CVFS.py -i ampicillin.csv -o ampicillin.out
+	(Run with 2 disjoint sub-parts and 5 repeated runs)
+	$ python3 CVFS.py -i ampicillin.csv -o ampicillin.out -c 2 -e 5
+	(Run with 3 disjoint sub-parts, 10 repeated runs, and 0.6 common feature run proportion)
+	$ python3 CVFS.py -i ampicillin.csv -o ampicillin.out -c 3 -e 10 -p 0.6 
 
 Contributing authors
 Ming-Ren Yang and Yu-Wei Wu
