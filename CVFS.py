@@ -16,69 +16,85 @@ from sklearn.model_selection import cross_val_predict
 from sklearn.model_selection import KFold
 from sklearn import set_config 
 from sklearn import metrics
+from sklearn import preprocessing
 import scipy as sp
 import sys, getopt,os
 import time
+import math
 
 inputfile = ''
+outputfile = ''
 aa = ''
 bb = ''
-ss = ''
-ex = ''
+ss = 0
+ex = 5
 se = ''
-jobs= ''
+cut3 = 2
+jobs = ''
+perc = 0.6
 try:
-	opts, args = getopt.getopt(sys.argv[1:],"hi:e:s:o:r:") 
+	#opts, args = getopt.getopt(sys.argv[1:],"hi:o:c:e:s:t:r:") 
+	opts, args = getopt.getopt(sys.argv[1:],"hi:o:c:e:p:t:") 
 except getopt.GetoptError:
-	print('Error')                             
+	print('Cannot get options. Please try again.')                             
+	sys.exit(0)
                                                                  
 for opt, arg in opts:
 	if(opt == '-h'):
-		print('\n  -i <inputfilename> please use .csv file\n  -h help \n -s \n  -e \n -o')
+		print('Usage: python3 CVFS.py\n  -i <inputfilename> (please use .csv files) \n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs; default 5] \n  [-p <Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]')
 		sys.exit(0)
 	elif opt == '-i':
 		inputfile = arg
-	elif opt == '-s':
-		ss = arg
-		ss =int(ss)
-	elif opt == '-e':
-		ex = arg  
-		ex =int(ex)
 	elif opt == '-o':
+		outputfile = arg
+	elif opt == '-c':
+		cut3 = arg  
+		cut3 =int(cut3)
+	elif opt == '-e':
+		ex = arg
+		ex =int(ex)
+	elif opt == '-p':
+		perc = arg  
+		perc =float(perc)
+	elif opt == '-t':
 		jobs = arg  
 		jobs =int(jobs)
 	elif opt == '-r':
 		se = arg  
 		if (se=='c'):
 			select='classification'
-if (ex==""):
-	ex=ss
-elif (ss==""):
-	ss=ex
+
+if (inputfile=="" or outputfile==""):
+	print('Usage: python3 CVFS.py\n  -i <inputfilename> (please use .csv files) \n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs; default 5] \n  [-p <Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]')
+	sys.exit(0)
+if (perc > 1 or perc <= 0):
+	print("Print specify a number between 0 and 1 for proportions of repeated runs.");
+	sys.exit()
 if (se==""):
 	se='c'
 if (jobs==""):
 	jobs=4
-if ((ss=="") and (ex=="")):
-	ss=3
-	ex=3
+if (cut3==""):
+	cut3=2
+ss = math.ceil(float(ex)*perc)
 
-print("Number of select=",ss)
-print("Number of executions=",ex)
-print("jobs=",jobs)
+print("Number of disjoint sub-parts = ",cut3)
+print("Number of repeated runs = ",ex)
+print("Proportion of features shared by repeated runs =", perc, "(Features need to appear in at least", ss, "repeated runs)")
+print("Thread number = ",jobs)
 if os.path.isfile(inputfile):
-	print("file exist")
+	print("File", inputfile, "found.")
 else:
-	print("file does not exist")
+	print("File", inputfile, "not exist. Please indicate the correct filename.")
 	sys.exit(0)
-if(isinstance(ss, int)==False):
-	print("Incorrect number is not int")
+if(isinstance(cut3, int)==False or cut3 <= 0):
+	print("Incorrect disjoint sub-part number [", cut3 ,"]. Need to be >= 0.", sep="")
 	sys.exit(0)
-if(isinstance(ex, int)==False):
-	print("Incorrect number is not int")
+if(isinstance(ex, int)==False or ex <= 0):
+	print("Incorrect repeated run number [", ex ,"]. Need to be >= 0.", sep="")
 	sys.exit(0)
 if(isinstance(jobs, int)==False):
-	print("jobs number is not int")
+	print("Incorrect thread number [", jobs ,"]. Need to be >= 0.", sep="")
 	sys.exit(0)
 if (ex<ss):
 	print("select cannot exceed executions")
@@ -87,17 +103,19 @@ if (ex<ss):
 
 import math
 print("Loading file")
-df = pd.read_csv(inputfile,dtype={'genome_id':str})
+#df = pd.read_csv(inputfile,dtype={'genome_id':str})
+df = pd.read_csv(inputfile)
 print("Loading file Ok")
 
-
+le = preprocessing.LabelEncoder()
 data=df.iloc[0:,3:]
 data=data[~data['resistant_phenotype'].isin(['Intermediate'])]
 XX = data.iloc[0:,1:]
 if(se=='c'):
-	kk=df["resistant_phenotype"].unique()
-	data["resistant_phenotype"] = data["resistant_phenotype"].str.replace(kk[0],"1")
-	data["resistant_phenotype"] = data["resistant_phenotype"].str.replace(kk[1],"0")
+	#kk=df["resistant_phenotype"].unique()
+	#data["resistant_phenotype"] = data["resistant_phenotype"].str.replace(kk[0],"1")
+	#data["resistant_phenotype"] = data["resistant_phenotype"].str.replace(kk[1],"0")
+	data["resistant_phenotype"] = le.fit_transform(data["resistant_phenotype"])
 	data=data.loc[:,~((data==0).all())]
 elif(se=='r'):
 	df['new_value']='NULL'
@@ -126,8 +144,8 @@ kk=0
 for k in cat:    
 	data_n =shuffle(data)
 	if(se=='c'):
-		data1=data_n.loc[data_n.resistant_phenotype=='1']
-		data0=data_n.loc[data_n.resistant_phenotype=='0']
+		data1=data_n.loc[data_n.resistant_phenotype==1]
+		data0=data_n.loc[data_n.resistant_phenotype==0]
 		data1_lens=len(data1)/cut3
 		data1_lens=int(data1_lens)
 		data0_lens=len(data0)/cut3
@@ -153,7 +171,7 @@ for k in cat:
 			X = df.iloc[0:,7:-1]
 			y = df['new_value']
 		if(se=='c'):
-			model = XGBClassifier(max_depth=10,n_estimators=500,n_jobs=jobs)
+			model = XGBClassifier(max_depth=10,n_estimators=500,n_jobs=jobs,use_label_encoder=False,eval_metric="auc")
 			model.fit(X, y)
 			feature_important = model.get_booster().get_score(importance_type='gain')
 		elif(se=='r'):
@@ -205,11 +223,25 @@ if(se=='c'):
 					datagroupjoin= pd.concat([datagroupjoin, data[XX.columns[line]]], axis=1)
 		model = SVC(kernel='linear')
 		scores = cross_val_score(model, datagroupjoin, y, cv=10, scoring='roc_auc')
-		print("columns value=",datagroupxorr.columns.values)
-		print("columns=" , datagroupxorr.shape[1])
-		print("SVM AVG score=%.4f" % round(scores.mean(),4))
+		#print("columns value=",datagroupxorr.columns.values)
+		outF = open(outputfile, "w")
+		outF.write("Extracted ")
+		outF.write(str(datagroupxorr.shape[1]))
+		outF.write(" features\n")
+		outF.write("Classification accuracy of the dataset using extracted features is ")
+		outF.write(str(round(scores.mean(),4)))
+		outF.write("\n")
+		for line in datagroupxorr.columns.values:
+			outF.write(line)
+			outF.write("\n")
+		outF.close()
+		#print("columns=" , datagroupxorr.shape[1])
+		#print("SVM AVG score=%.4f" % round(scores.mean(),4))
+		print("Extracted", datagroupxorr.shape[1], "features")
+		print("Classification accuracy of the dataset using extracted features is", round(scores.mean(),4));
 	else:
-		print("No cluster in this experiment")
+		#print("No cluster in this experiment")
+		print("Cannot find shared features in this run. Please adjust the parameters.");
 elif(se=='r'):
 	yy = df['new_value']
 	if((datagroupxorr.shape[1])!=0):
