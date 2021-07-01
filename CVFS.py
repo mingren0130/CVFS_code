@@ -24,38 +24,37 @@ import math
 
 inputfile = ''
 outputfile = ''
-aa = ''
-bb = ''
 ss = 0
 ex = 5
 se = ''
-cut3 = 2
+cut = ''
 jobs = ''
 perc = 0.6
 try:
-	#opts, args = getopt.getopt(sys.argv[1:],"hi:o:c:e:s:t:r:") 
 	opts, args = getopt.getopt(sys.argv[1:],"hi:o:c:e:p:t:") 
 except getopt.GetoptError:
-	print('Cannot get options. Please try again.')                             
-	sys.exit(0)
+	print('Error')                             
                                                                  
 for opt, arg in opts:
 	if(opt == '-h'):
-		print('Usage: python3 CVFS.py\n  -i <inputfilename> (please use .csv files) \n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs; default 5] \n  [-p <Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]')
+		print('Usage: python3 CVFS.py\n  -i <inputfilename> (please use .csv files) \n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]')
 		sys.exit(0)
 	elif opt == '-i':
 		inputfile = arg
 	elif opt == '-o':
 		outputfile = arg
 	elif opt == '-c':
-		cut3 = arg  
-		cut3 =int(cut3)
-	elif opt == '-e':
-		ex = arg
-		ex =int(ex)
+		cut = arg  
+		cut =int(cut)
+	#elif opt == '-s':
+		#ss = arg
+		#ss =int(ss)
 	elif opt == '-p':
 		perc = arg  
 		perc =float(perc)
+	elif opt == '-e':
+		ex = arg  
+		ex =int(ex)
 	elif opt == '-t':
 		jobs = arg  
 		jobs =int(jobs)
@@ -63,7 +62,6 @@ for opt, arg in opts:
 		se = arg  
 		if (se=='c'):
 			select='classification'
-
 if (inputfile=="" or outputfile==""):
 	print('Usage: python3 CVFS.py\n  -i <inputfilename> (please use .csv files) \n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs; default 5] \n  [-p <Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]')
 	sys.exit(0)
@@ -74,11 +72,11 @@ if (se==""):
 	se='c'
 if (jobs==""):
 	jobs=4
-if (cut3==""):
-	cut3=2
+if (cut==""):
+	cut=2
 ss = math.ceil(float(ex)*perc)
 
-print("Number of disjoint sub-parts = ",cut3)
+print("Number of disjoint sub-parts = ",cut)
 print("Number of repeated runs = ",ex)
 print("Proportion of features shared by repeated runs =", perc, "(Features need to appear in at least", ss, "repeated runs)")
 print("Thread number = ",jobs)
@@ -87,8 +85,8 @@ if os.path.isfile(inputfile):
 else:
 	print("File", inputfile, "not exist. Please indicate the correct filename.")
 	sys.exit(0)
-if(isinstance(cut3, int)==False or cut3 <= 0):
-	print("Incorrect disjoint sub-part number [", cut3 ,"]. Need to be >= 0.", sep="")
+if(isinstance(cut, int)==False or cut <= 0):
+	print("Incorrect disjoint sub-part number [", cut ,"]. Need to be >= 0.", sep="")
 	sys.exit(0)
 if(isinstance(ex, int)==False or ex <= 0):
 	print("Incorrect repeated run number [", ex ,"]. Need to be >= 0.", sep="")
@@ -99,14 +97,10 @@ if(isinstance(jobs, int)==False):
 if (ex<ss):
 	print("select cannot exceed executions")
 	sys.exit(0)
-
-
-import math
 print("Loading file")
 #df = pd.read_csv(inputfile,dtype={'genome_id':str})
 df = pd.read_csv(inputfile)
 print("Loading file Ok")
-
 le = preprocessing.LabelEncoder()
 data=df.iloc[0:,3:]
 data=data[~data['resistant_phenotype'].isin(['Intermediate'])]
@@ -133,9 +127,9 @@ elif(se=='r'):
 		else:
 			df.iloc[line:line2,-1:]=(math.log2((df.iloc[line:line2,4:5]).sum()))
 	df=df.loc[:,~((df==0).all())] 
-
-cut3=3
 cat=[]
+cuut=[]
+cot=[]
 for k in range(ex):
 	kk="datagroup_"+str(k)
 	cat.append(kk)    
@@ -146,21 +140,31 @@ for k in cat:
 	if(se=='c'):
 		data1=data_n.loc[data_n.resistant_phenotype==1]
 		data0=data_n.loc[data_n.resistant_phenotype==0]
-		data1_lens=len(data1)/cut3
+		data1_lens=len(data1)/cut
 		data1_lens=int(data1_lens)
-		data0_lens=len(data0)/cut3
+		data0_lens=len(data0)/cut
 		data0_lens=int(data0_lens)
-		datagroup1= pd.concat([data0.iloc[0:int(data0_lens),0:],data1.iloc[0:int(data1_lens),0:]], axis=0)
-		datagroup2= pd.concat([data0.iloc[int(data0_lens):int(data0_lens)*2,0:],data1.iloc[int(data1_lens):int(data1_lens)*2,0:]], axis=0)
-		datagroup3= pd.concat([data0.iloc[int(data0_lens)*2:,0:],data1.iloc[int(data1_lens)*2:,0:]], axis=0)
+		cmt=cat
+		jj=0
+		for j in range(cut):
+    			if((jj+1)==cut):
+        			cmt[jj]=pd.concat([data0.iloc[int(data0_lens)*jj:,0:],data1.iloc[int(data1_lens)*jj:,0:]], axis=0)
+    			else:
+        			cmt[jj]=pd.concat([data0.iloc[int(data0_lens)*jj:int(data0_lens)*(jj+1),0:],data1.iloc[int(data1_lens)*jj:int(data1_lens)*(jj+1),0:]], axis=0)
+    			cot.append(cmt[jj])  
+    			jj=jj+1
+		#datagroup1= pd.concat([data0.iloc[0:int(data0_lens),0:],data1.iloc[0:int(data1_lens),0:]], axis=0)
+		#datagroup2= pd.concat([data0.iloc[int(data0_lens):int(data0_lens)*2,0:],data1.iloc[int(data1_lens):int(data1_lens)*2,0:]], axis=0)
+		#datagroup3= pd.concat([data0.iloc[int(data0_lens)*2:,0:],data1.iloc[int(data1_lens)*2:,0:]], axis=0)
 	if(se=='r'):
 		data0_lens=len(df)/cut3
 		data0_lens=int(data0_lens)
 		datagroup1= df.iloc[0:int(data0_lens),0:]
 		datagroup2= df.iloc[int(data0_lens):int(data0_lens)*2,0:]
-		datagroup3= df.iloc[int(data0_lens)*2:,0:]	
-	cut=['datagroup1_v','datagroup2_v','datagroup3_v']
-	cot=[datagroup1,datagroup2,datagroup3]
+		datagroup3= df.iloc[int(data0_lens)*2:,0:]
+	for k in range(cut):
+    		kkk="datagroup"+str(k)
+    		cuut.append(kkk) 	
 	c=pd.DataFrame()
 	j=0
 	for i in cot:
@@ -180,7 +184,7 @@ for k in cat:
 			feature_important = xg_reg.get_booster().get_score(importance_type='gain')
 		keys = list(feature_important.keys())
 		values = list(feature_important.values())
-		temp1=str(cut[j])
+		temp1=str(cuut[j])
 		temp2 = pd.DataFrame( index=keys,data=values,columns=["score"]).sort_values(by = "score", ascending=False)
 		temp2=temp2.T
 		for iu in range(0,temp2.shape[1],1):
@@ -193,7 +197,7 @@ for k in cat:
 		line2=line+1
 		s=c.iloc[0:,line:line2].sum()
 		s=int(s)
-		if(s>=3):
+		if(s>=cut):
 			datagroupxor.at[c.columns.values[line],'datagroup']=1
 	datagroupxor=datagroupxor.T
 	ky=str(cat[kk])
@@ -210,7 +214,6 @@ for line in range(cc.shape[1]):
     sr=int(sr)
     if(sr>=ss):
         datagroupxorr.at[cc.columns.values[line],'yyy']=1 
-
 datagroupxorr=datagroupxorr.T
 if(se=='c'):
 	data['resistant_phenotype'] = data['resistant_phenotype'].astype(int)
@@ -223,7 +226,6 @@ if(se=='c'):
 					datagroupjoin= pd.concat([datagroupjoin, data[XX.columns[line]]], axis=1)
 		model = SVC(kernel='linear')
 		scores = cross_val_score(model, datagroupjoin, y, cv=10, scoring='roc_auc')
-		#print("columns value=",datagroupxorr.columns.values)
 		outF = open(outputfile, "w")
 		outF.write("Extracted ")
 		outF.write(str(datagroupxorr.shape[1]))
@@ -240,7 +242,6 @@ if(se=='c'):
 		print("Extracted", datagroupxorr.shape[1], "features")
 		print("Classification accuracy of the dataset using extracted features is", round(scores.mean(),4));
 	else:
-		#print("No cluster in this experiment")
 		print("Cannot find shared features in this run. Please adjust the parameters.");
 elif(se=='r'):
 	yy = df['new_value']
