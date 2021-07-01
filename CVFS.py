@@ -132,7 +132,7 @@ cuut=[]
 cot=[]
 for k in range(ex):
 	kk="datagroup_"+str(k)
-	cat.append(kk)    
+	cat.append(kk)   
 cc=pd.DataFrame()
 kk=0
 for k in cat:    
@@ -144,7 +144,10 @@ for k in cat:
 		data1_lens=int(data1_lens)
 		data0_lens=len(data0)/cut
 		data0_lens=int(data0_lens)
-		cmt=cat
+		cmt=[]
+		for k in range(cut):
+			kk="datagroup_"+str(k)
+			cmt.append(kk)
 		jj=0
 		for j in range(cut):
     			if((jj+1)==cut):
