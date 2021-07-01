@@ -146,8 +146,8 @@ for k in cat:
 		data0_lens=int(data0_lens)
 		cmt=[]
 		for k in range(cut):
-			kk="datagroup_"+str(k)
-			cmt.append(kk)
+			dk="datagroup_"+str(k)
+			cmt.append(dk)
 		jj=0
 		for j in range(cut):
     			if((jj+1)==cut):
@@ -204,6 +204,7 @@ for k in cat:
 			datagroupxor.at[c.columns.values[line],'datagroup']=1
 	datagroupxor=datagroupxor.T
 	ky=str(cat[kk])
+	#for iu in range(0,datagroupxor.shape[1],1):
 	for iu in range(0,datagroupxor.shape[1],1):
 		cc.at[datagroupxor.columns.values[iu],ky]=1
 	kk=kk+1
