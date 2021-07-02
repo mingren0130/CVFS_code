@@ -1,3 +1,5 @@
+VERSION = 0.1
+
 import numpy as np
 import pandas as pd
 from sklearn.svm import SVC
@@ -31,13 +33,17 @@ cut = ''
 jobs = ''
 perc = 0.6
 try:
-	opts, args = getopt.getopt(sys.argv[1:],"hi:o:c:e:p:t:") 
+	opts, args = getopt.getopt(sys.argv[1:],"hvi:o:c:e:p:t:") 
 except getopt.GetoptError:
-	print('Error')                             
+	print('Cannot get parameters for processing. Program stop.')                             
                                                                  
 for opt, arg in opts:
 	if(opt == '-h'):
-		print('Usage: python3 CVFS.py\n  -i <inputfilename> (please use .csv files) \n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]')
+		print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]\n  [-v <Display version number>]')
+		sys.exit(0)
+	elif(opt == '-v'):
+		print("CVFS.py version", VERSION)
+		print("Developed by Ming-Ren Yang and Yu-Wei Wu at Taipei Medical University, 2021")
 		sys.exit(0)
 	elif opt == '-i':
 		inputfile = arg
@@ -63,7 +69,7 @@ for opt, arg in opts:
 		if (se=='c'):
 			select='classification'
 if (inputfile=="" or outputfile==""):
-	print('Usage: python3 CVFS.py\n  -i <inputfilename> (please use .csv files) \n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs; default 5] \n  [-p <Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]')
+	print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]')
 	sys.exit(0)
 if (perc > 1 or perc <= 0):
 	print("Print specify a number between 0 and 1 for proportions of repeated runs.");
