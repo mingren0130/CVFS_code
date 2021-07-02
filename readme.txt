@@ -1,4 +1,4 @@
-CVFS
+CVFS version 0.1
 
 CVFS is a python program that employs a Cross-Validated Feature Selection (CVFS) algorithm for extracting the most related features for classification problems. Currently the program is developed to verify its capability in identifying antimicrobial resistance genes from Salmonella enterica antimicrobial resistance datasets.
 	
@@ -22,9 +22,10 @@ Program Usage
 		-e <Number of repeated runs>; default 5
 		-p <Proportions of repeated runs for extracting common features>; default 0.6]
 		-t <Thread number>; default 4
+		-v (print version info)
+		-h (print the help message)
 
 Datasets
-
 	12 CSV files were provided to test the efficacy of the CVFS program. Please unzip the CSV files using the following command:
 
 	$ cd CVFS_code
