@@ -33,13 +33,14 @@ cut = ''
 jobs = ''
 perc = 0.6
 try:
-	opts, args = getopt.getopt(sys.argv[1:],"hvi:o:c:e:p:t:") 
+	opts, args = getopt.getopt(sys.argv[1:],"hvi:o:c:e:p:t:")  
 except getopt.GetoptError:
-	print('Cannot get parameters for processing. Program stop.')                             
+	print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]\n  [-v <Display version number>]')
+	sys.exit(2)                             
                                                                  
 for opt, arg in opts:
 	if(opt == '-h'):
-		print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]\n  [-v <Display version number>]')
+		print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]\n  [-v <Display version number>]')
 		sys.exit(0)
 	elif(opt == '-v'):
 		print("CVFS.py version", VERSION)
@@ -69,7 +70,7 @@ for opt, arg in opts:
 		if (se=='c'):
 			select='classification'
 if (inputfile=="" or outputfile==""):
-	print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]')
+	print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-c <Number of disjoint sub-parts>; default 2]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]')
 	sys.exit(0)
 if (perc > 1 or perc <= 0):
 	print("Print specify a number between 0 and 1 for proportions of repeated runs.");
