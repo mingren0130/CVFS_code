@@ -7,9 +7,9 @@ from sklearn.utils import shuffle
 import xgboost as xgb
 from xgboost import XGBClassifier
 from xgboost import plot_importance
+from numpy import sort
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.inspection import permutation_importance
-from numpy import sort
 from sklearn.model_selection import cross_val_score 
 from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import SelectFromModel
@@ -53,14 +53,14 @@ for opt, arg in opts:
 		inputfile = arg
 	elif opt == '-o':
 		outputfile = arg
+	elif opt == '-c':
+		cut = arg  
+		cut =int(cut)
 	elif opt == '-a':
 		if (arg != "xgboost" and arg != "rf"):
 			print("Viable options for algorithm are XGBoost (xgboost) and Random Forest (rf). Please specify correct algorithm option.")
 			sys.exit(-1)
 		algo = arg
-	elif opt == '-c':
-		cut = arg  
-		cut =int(cut)
 	#elif opt == '-s':
 		#ss = arg
 		#ss =int(ss)
@@ -79,6 +79,7 @@ for opt, arg in opts:
 			select='classification'
 if (inputfile=="" or outputfile==""):
 	print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-a <feature selection algorithm [xgboost] or [rf]>; default xgboost]\n  [-c <Number of disjoint sub-parts>; default 2]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]\n  [-v (Display version number)]\n  [-h (Display this help message)]')
+	sys.exit(0)
 	sys.exit(0)
 if (perc > 1 or perc <= 0):
 	print("Print specify a number between 0 and 1 for proportions of repeated runs.");
@@ -154,8 +155,8 @@ for k in range(ex):
 	cat.append(kk)   
 cc=pd.DataFrame()
 kk=0
-for k in cat:    
-	print(kk + 1, " out of ", ex, " repeated runs", sep="")
+for k in cat:
+	print(kk + 1, " out of ", ex, " repeated runs", sep="")    
 	data_n =shuffle(data)
 	if(se=='c'):
 		data1=data_n.loc[data_n.resistant_phenotype==1]
