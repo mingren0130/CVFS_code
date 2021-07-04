@@ -27,9 +27,10 @@ Program Usage
 			-o <feature output filename>
 
 	(optionsl parameters)
-		-c <Number of disjoint sub-parts; default 2>
+		-a feature selection algorithm [xgboost] or [rf]>; default xgboost
+		-c <Number of disjoint sub-parts>; default 2
 		-e <Number of repeated runs>; default 5
-		-p <Proportions of repeated runs for extracting common features>; default 0.6]
+		-p <Proportions of repeated runs for extracting common features>; default 0.6
 		-t <Thread number>; default 4
 		-v (print version info)
 		-h (print the help message)
