@@ -7,6 +7,8 @@ from sklearn.utils import shuffle
 import xgboost as xgb
 from xgboost import XGBClassifier
 from xgboost import plot_importance
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.inspection import permutation_importance
 from numpy import sort
 from sklearn.model_selection import cross_val_score 
 from sklearn.model_selection import train_test_split
@@ -31,16 +33,17 @@ ex = 5
 se = ''
 cut = ''
 jobs = ''
+algo = "xgboost"
 perc = 0.6
 try:
-	opts, args = getopt.getopt(sys.argv[1:],"hvi:o:c:e:p:t:")  
+	opts, args = getopt.getopt(sys.argv[1:],"hvi:o:c:e:p:t:a:")  
 except getopt.GetoptError:
-	print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]\n  [-v <Display version number>]')
+	print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-a <feature selection algorithm [xgboost] or [rf]>; default xgboost]\n  [-c <Number of disjoint sub-parts>; default 2]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]\n  [-v (Display version number)]\n  [-h (Display this help message)]')
 	sys.exit(2)                             
                                                                  
 for opt, arg in opts:
 	if(opt == '-h'):
-		print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-c <Number of disjoint sub-parts; default 2>]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]\n  [-v <Display version number>]')
+		print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-a <feature selection algorithm [xgboost] or [rf]>; default xgboost]\n  [-c <Number of disjoint sub-parts>; default 2]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]\n  [-v (Display version number)]\n  [-h (Display this help message)]')
 		sys.exit(0)
 	elif(opt == '-v'):
 		print("CVFS.py version", VERSION)
@@ -50,6 +53,11 @@ for opt, arg in opts:
 		inputfile = arg
 	elif opt == '-o':
 		outputfile = arg
+	elif opt == '-a':
+		if (arg != "xgboost" and arg != "rf"):
+			print("Viable options for algorithm are XGBoost (xgboost) and Random Forest (rf). Please specify correct algorithm option.")
+			sys.exit(-1)
+		algo = arg
 	elif opt == '-c':
 		cut = arg  
 		cut =int(cut)
@@ -70,7 +78,7 @@ for opt, arg in opts:
 		if (se=='c'):
 			select='classification'
 if (inputfile=="" or outputfile==""):
-	print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-c <Number of disjoint sub-parts>; default 2]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]')
+	print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-a <feature selection algorithm [xgboost] or [rf]>; default xgboost]\n  [-c <Number of disjoint sub-parts>; default 2]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]\n  [-v (Display version number)]\n  [-h (Display this help message)]')
 	sys.exit(0)
 if (perc > 1 or perc <= 0):
 	print("Print specify a number between 0 and 1 for proportions of repeated runs.");
@@ -83,6 +91,10 @@ if (cut==""):
 	cut=2
 ss = math.ceil(float(ex)*perc)
 
+if (algo == "xgboost"):
+	print("Feature selection algorithm = XGBoost")
+elif (algo == "rf"):
+	print("Feature selection algorithm = Random Forest")
 print("Number of disjoint sub-parts = ",cut)
 print("Number of repeated runs = ",ex)
 print("Proportion of features shared by repeated runs =", perc, "(Features need to appear in at least", ss, "repeated runs)")
@@ -143,6 +155,7 @@ for k in range(ex):
 cc=pd.DataFrame()
 kk=0
 for k in cat:    
+	print(kk + 1, " out of ", ex, " repeated runs", sep="")
 	data_n =shuffle(data)
 	if(se=='c'):
 		data1=data_n.loc[data_n.resistant_phenotype==1]
@@ -152,6 +165,7 @@ for k in cat:
 		data0_lens=len(data0)/cut
 		data0_lens=int(data0_lens)
 		cmt=[]
+		cot=[]
 		for k in range(cut):
 			dk="datagroup_"+str(k)
 			cmt.append(dk)
@@ -185,9 +199,21 @@ for k in cat:
 			X = df.iloc[0:,7:-1]
 			y = df['new_value']
 		if(se=='c'):
-			model = XGBClassifier(max_depth=10,n_estimators=500,n_jobs=jobs,use_label_encoder=False,eval_metric="auc")
-			model.fit(X, y)
-			feature_important = model.get_booster().get_score(importance_type='gain')
+			if (algo == "xgboost"):
+				#model = XGBClassifier(max_depth=10,n_estimators=500,n_jobs=jobs,use_label_encoder=False,eval_metric="auc")
+				model = XGBClassifier(n_jobs=jobs,use_label_encoder=False,eval_metric="auc")
+				model.fit(X, y)
+				feature_important = model.get_booster().get_score(importance_type='gain')
+			elif (algo == "rf"):
+				names = X.columns
+				model = RandomForestClassifier(max_depth=6, n_jobs=jobs)
+				model.fit(X, y)
+				f = dict(zip(names, model.feature_importances_))
+				feature_important = dict()
+				for (key, value) in f.items():
+					if value > 0:
+						feature_important[key] = value
+			print("\tSub-part ", j + 1, " out of ", cut, " - obtained ", len(feature_important), " features", sep="")
 		elif(se=='r'):
 			xg_reg = xgb.XGBRegressor(objective ='reg:linear',max_depth = 10,n_estimators = 500,n_jobs=jobs)
 			xg_reg.fit(X, y)
@@ -203,19 +229,21 @@ for k in cat:
 	c=c.T
 	c=c.fillna(0)
 	datagroupxor=pd.DataFrame()
+	unicount = 0
 	for line in range(c.shape[1]):
 		line2=line+1
 		s=c.iloc[0:,line:line2].sum()
 		s=int(s)
 		if(s>=cut):
 			datagroupxor.at[c.columns.values[line],'datagroup']=1
+			unicount = unicount + 1
+	print("\tExtracted ", unicount, " features from the intersection of distinct feature sets", sep="")
 	datagroupxor=datagroupxor.T
 	ky=str(cat[kk])
 	#for iu in range(0,datagroupxor.shape[1],1):
 	for iu in range(0,datagroupxor.shape[1],1):
 		cc.at[datagroupxor.columns.values[iu],ky]=1
 	kk=kk+1
-print("xgb is ok")
 datagroupxorr=pd.DataFrame()
 cc=cc.T
 cc=cc.fillna(0)
@@ -250,7 +278,7 @@ if(se=='c'):
 		outF.close()
 		#print("columns=" , datagroupxorr.shape[1])
 		#print("SVM AVG score=%.4f" % round(scores.mean(),4))
-		print("Extracted", datagroupxorr.shape[1], "features")
+		print("Extracted ", datagroupxorr.shape[1], " features that share ", perc * 100, "% among all repeated runs", sep="")
 		print("Classification accuracy of the dataset using extracted features is", round(scores.mean(),4));
 	else:
 		print("Cannot find shared features in this run. Please adjust the parameters.");
