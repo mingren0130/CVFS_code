@@ -122,7 +122,7 @@ print("Loading file")
 df = pd.read_csv(inputfile)
 print("Loading file Ok")
 le = preprocessing.LabelEncoder()
-data=df.iloc[0:,3:]
+data=df.iloc[0:,1:]
 data=data[~data['resistant_phenotype'].isin(['Intermediate'])]
 XX = data.iloc[0:,1:]
 if(se=='c'):
