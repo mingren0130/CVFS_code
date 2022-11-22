@@ -1,4 +1,4 @@
-VERSION = 0.1
+VERSION = 0.1001
 
 import numpy as np
 import pandas as pd
