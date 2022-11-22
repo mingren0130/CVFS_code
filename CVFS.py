@@ -280,7 +280,7 @@ if(se=='c'):
 		#print("columns=" , datagroupxorr.shape[1])
 		#print("SVM AVG score=%.4f" % round(scores.mean(),4))
 		print("Extracted ", datagroupxorr.shape[1], " features that share ", perc * 100, "% among all repeated runs", sep="")
-		print("Classification ROCAUC of the dataset using extracted features is", round(scores.mean(),4));
+		print("Classification ROAUC of the dataset using extracted features is", round(scores.mean(),4));
 	else:
 		print("Cannot find shared features in this run. Please adjust the parameters.");
 elif(se=='r'):
