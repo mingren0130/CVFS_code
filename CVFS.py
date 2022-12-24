@@ -1,4 +1,4 @@
-VERSION = 0.1001
+VERSION = 0.1002
 
 import numpy as np
 import pandas as pd
@@ -126,9 +126,6 @@ data=df.iloc[0:,1:]
 data=data[~data['resistant_phenotype'].isin(['Intermediate'])]
 XX = data.iloc[0:,1:]
 if(se=='c'):
-	#kk=df["resistant_phenotype"].unique()
-	#data["resistant_phenotype"] = data["resistant_phenotype"].str.replace(kk[0],"1")
-	#data["resistant_phenotype"] = data["resistant_phenotype"].str.replace(kk[1],"0")
 	data["resistant_phenotype"] = le.fit_transform(data["resistant_phenotype"])
 	data=data.loc[:,~((data==0).all())]
 elif(se=='r'):
@@ -155,6 +152,24 @@ for k in range(ex):
 	cat.append(kk)   
 cc=pd.DataFrame()
 kk=0
+
+dataall=data
+X = dataall.iloc[0:,1:]
+y = dataall['resistant_phenotype']
+model = XGBClassifier(n_jobs=jobs,use_label_encoder=False,eval_metric="auc")
+model.fit(X, y)
+feature_important = model.get_booster().get_score(importance_type='gain')
+keys = list(feature_important.keys())
+values = list(feature_important.values())
+
+tempall = pd.DataFrame( index=keys,data=values,columns=["score"]).sort_values(by = "score", ascending=False)
+tempall=tempall.T
+d_v={}
+d_p={}
+for i in range(0,tempall.shape[1],1):
+	d_v[tempall.columns[i]]=tempall.iat[0,i]
+	d_p[tempall.columns[i]]=i+1
+
 for k in cat:
 	print(kk + 1, " out of ", ex, " repeated runs", sep="")    
 	data_n =shuffle(data)
@@ -178,9 +193,7 @@ for k in cat:
         			cmt[jj]=pd.concat([data0.iloc[int(data0_lens)*jj:int(data0_lens)*(jj+1),0:],data1.iloc[int(data1_lens)*jj:int(data1_lens)*(jj+1),0:]], axis=0)
     			cot.append(cmt[jj])  
     			jj=jj+1
-		#datagroup1= pd.concat([data0.iloc[0:int(data0_lens),0:],data1.iloc[0:int(data1_lens),0:]], axis=0)
-		#datagroup2= pd.concat([data0.iloc[int(data0_lens):int(data0_lens)*2,0:],data1.iloc[int(data1_lens):int(data1_lens)*2,0:]], axis=0)
-		#datagroup3= pd.concat([data0.iloc[int(data0_lens)*2:,0:],data1.iloc[int(data1_lens)*2:,0:]], axis=0)
+
 	if(se=='r'):
 		data0_lens=len(df)/cut3
 		data0_lens=int(data0_lens)
@@ -270,11 +283,19 @@ if(se=='c'):
 		outF.write("Extracted ")
 		outF.write(str(datagroupxorr.shape[1]))
 		outF.write(" features\n")
-		outF.write("Classification accuracy of the dataset using extracted features is ")
+		outF.write("Classification AUROC of the dataset using extracted features is ")
 		outF.write(str(round(scores.mean(),4)))
 		outF.write("\n")
 		for line in datagroupxorr.columns.values:
 			outF.write(line)
+			outF.write("\n")
+			outF.write("importance score:")
+			a=str(d_v[line])
+			outF.write(a)
+			outF.write("\n")
+			outF.write("importance Rank:")
+			b=str(d_p[line])
+			outF.write(b)
 			outF.write("\n")
 		outF.close()
 		#print("columns=" , datagroupxorr.shape[1])
@@ -300,4 +321,3 @@ elif(se=='r'):
 		print("r2_score: %f" %r2_score(yy,scores))  
 	else:
 		print("No cluster in this experiment")
-
