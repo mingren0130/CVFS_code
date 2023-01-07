@@ -1,4 +1,4 @@
-VERSION = 0.1002
+VERSION = 0.1003
 
 import numpy as np
 import pandas as pd
@@ -118,7 +118,6 @@ if (ex<ss):
 	print("select cannot exceed executions")
 	sys.exit(0)
 print("Loading file")
-#df = pd.read_csv(inputfile,dtype={'genome_id':str})
 df = pd.read_csv(inputfile)
 print("Loading file Ok")
 le = preprocessing.LabelEncoder()
@@ -126,6 +125,9 @@ data=df.iloc[0:,1:]
 data=data[~data['resistant_phenotype'].isin(['Intermediate'])]
 XX = data.iloc[0:,1:]
 if(se=='c'):
+	#kk=df["resistant_phenotype"].unique()
+	#data["resistant_phenotype"] = data["resistant_phenotype"].str.replace(kk[0],"1")
+	#data["resistant_phenotype"] = data["resistant_phenotype"].str.replace(kk[1],"0")
 	data["resistant_phenotype"] = le.fit_transform(data["resistant_phenotype"])
 	data=data.loc[:,~((data==0).all())]
 elif(se=='r'):
@@ -161,8 +163,7 @@ model.fit(X, y)
 feature_important = model.get_booster().get_score(importance_type='gain')
 keys = list(feature_important.keys())
 values = list(feature_important.values())
-
-tempall = pd.DataFrame( index=keys,data=values,columns=["score"]).sort_values(by = "score", ascending=False)
+tempall = pd.DataFrame(index=keys,data=values,columns=["score"]).sort_values(by = "score", ascending=False)
 tempall=tempall.T
 d_v={}
 d_p={}
@@ -193,7 +194,6 @@ for k in cat:
         			cmt[jj]=pd.concat([data0.iloc[int(data0_lens)*jj:int(data0_lens)*(jj+1),0:],data1.iloc[int(data1_lens)*jj:int(data1_lens)*(jj+1),0:]], axis=0)
     			cot.append(cmt[jj])  
     			jj=jj+1
-
 	if(se=='r'):
 		data0_lens=len(df)/cut3
 		data0_lens=int(data0_lens)
@@ -254,19 +254,28 @@ for k in cat:
 	print("\tExtracted ", unicount, " features from the intersection of distinct feature sets", sep="")
 	datagroupxor=datagroupxor.T
 	ky=str(cat[kk])
-	#for iu in range(0,datagroupxor.shape[1],1):
 	for iu in range(0,datagroupxor.shape[1],1):
 		cc.at[datagroupxor.columns.values[iu],ky]=1
 	kk=kk+1
 datagroupxorr=pd.DataFrame()
 cc=cc.T
 cc=cc.fillna(0)
+e_v={}
+e_p={}
+e_a={}
+
+ff=X.shape[1]
 for line in range(cc.shape[1]):
-    line3=line+1
-    sr=cc.iloc[0:,line:line3].sum()
-    sr=int(sr)
-    if(sr>=ss):
-        datagroupxorr.at[cc.columns.values[line],'yyy']=1 
+	line3=line+1
+	sr=cc.iloc[0:,line:line3].sum()
+	sr=int(sr)
+	e_v[cc.columns.values[line]]=round(sr/int(ex),3)
+	if(cc.columns.values[line] in d_v.keys()):
+		e_p[cc.columns.values[line]]=((ff+1-int(d_p[cc.columns.values[line]]))/(ff*100))
+	else:
+		e_p[cc.columns.values[line]]=1/(ff*100)
+	if(sr>=ss):
+		datagroupxorr.at[cc.columns.values[line],'yyy']=1
 datagroupxorr=datagroupxorr.T
 if(se=='c'):
 	data['resistant_phenotype'] = data['resistant_phenotype'].astype(int)
@@ -286,17 +295,22 @@ if(se=='c'):
 		outF.write("Classification AUROC of the dataset using extracted features is ")
 		outF.write(str(round(scores.mean(),4)))
 		outF.write("\n")
+		sortcc=pd.DataFrame()
 		for line in datagroupxorr.columns.values:
-			outF.write(line)
-			outF.write("\n")
-			outF.write("importance score:")
-			a=str(d_v[line])
-			outF.write(a)
-			outF.write("\n")
-			outF.write("importance Rank:")
-			b=str(d_p[line])
-			outF.write(b)
-			outF.write("\n")
+			e_a[line]=e_p[line]*e_v[line]
+			sortcc.at[line,'aa']=line
+			sortcc.at[line,'bb']=e_a[line]
+			sortcc.at[line,'perc']=e_v[line]
+			if(line in d_v.keys()):
+				sortcc.at[line,'Orank']=d_p[line]
+			else:
+				sortcc.at[line,'Orank']=0			
+		outF.write("Extracted features (sorted by importance rank):")
+		outF.write("\n")
+		sort_sortcc=sortcc.sort_values(by='bb',ascending=False)
+		for li in range(sort_sortcc.shape[0]):
+			outF.write(sort_sortcc.iat[li,0])
+			outF.write("\n")		
 		outF.close()
 		#print("columns=" , datagroupxorr.shape[1])
 		#print("SVM AVG score=%.4f" % round(scores.mean(),4))
