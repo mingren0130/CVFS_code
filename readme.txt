@@ -80,3 +80,9 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+If you use CVFS in your work please cite:
+Ming-Ren Yang and Yu-Wei Wu, "A Cross-Validated Feature Selection (CVFS) approach for extracting the most parsimonious feature sets 
+and discovering potential antimicrobial resistance (AMR) biomarkers", Computational and Structural Biotechnology Journal, 21:769-779, 
+2023.
+
