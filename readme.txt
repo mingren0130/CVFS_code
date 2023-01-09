@@ -61,7 +61,7 @@ Version
 License
 MIT License
 
-Copyright (c) 2021 Ming-Ren Yang and Yu-Wei Wu
+Copyright (c) 2023 Ming-Ren Yang and Yu-Wei Wu
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
