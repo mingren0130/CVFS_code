@@ -1,4 +1,4 @@
-CVFS version 0.1
+CVFS version 0.1002
 
 CVFS is a python program that employs a Cross-Validated Feature Selection (CVFS) algorithm 
 for extracting the most related features for classification problems. Currently the program 
