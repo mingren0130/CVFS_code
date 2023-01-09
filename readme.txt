@@ -56,7 +56,7 @@ Ming-Ren Yang and Yu-Wei Wu
 Graduate Institute of Biomedical Informatics, Taipei Medical University, Taipei, Taiwan
 
 Version
-0.1
+0.1002
 
 License
 MIT License
