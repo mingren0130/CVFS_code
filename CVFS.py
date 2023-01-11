@@ -78,7 +78,7 @@ for opt, arg in opts:
 		if (se=='c'):
 			select='classification'
 if (inputfile=="" or outputfile==""):
-	print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-a <feature selection algorithm [xgboost] or [rf]>; default xgboost]\n  [-c <Number of disjoint sub-parts>; default 2]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]\n  [-v (Display version number)]\n  [-h (Display this help message)]')
+	print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-a <feature selection algorithm [xgboost] or [rf]>; default xgboost]\n  [-c <Number of disjoint sub-parts>; default 2]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.8]\n  [-t <Thread number>; default 4]\n  [-v (Display version number)]\n  [-h (Display this help message)]')
 	sys.exit(0)
 	sys.exit(0)
 if (perc > 1 or perc <= 0):
