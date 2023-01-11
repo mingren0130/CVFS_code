@@ -34,20 +34,20 @@ se = ''
 cut = ''
 jobs = ''
 algo = "xgboost"
-perc = 0.6
+perc = 0.8
 try:
 	opts, args = getopt.getopt(sys.argv[1:],"hvi:o:c:e:p:t:a:")  
 except getopt.GetoptError:
-	print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-a <feature selection algorithm [xgboost] or [rf]>; default xgboost]\n  [-c <Number of disjoint sub-parts>; default 2]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]\n  [-v (Display version number)]\n  [-h (Display this help message)]')
+	print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-a <feature selection algorithm [xgboost] or [rf]>; default xgboost]\n  [-c <Number of disjoint sub-parts>; default 2]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.8]\n  [-t <Thread number>; default 4]\n  [-v (Display version number)]\n  [-h (Display this help message)]')
 	sys.exit(2)                             
                                                                  
 for opt, arg in opts:
 	if(opt == '-h'):
-		print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-a <feature selection algorithm [xgboost] or [rf]>; default xgboost]\n  [-c <Number of disjoint sub-parts>; default 2]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.6]\n  [-t <Thread number>; default 4]\n  [-v (Display version number)]\n  [-h (Display this help message)]')
+		print('Usage: python3 CVFS.py\n  -i <input filename> (please use .csv files) \n  -o <output file>\n  [-a <feature selection algorithm [xgboost] or [rf]>; default xgboost]\n  [-c <Number of disjoint sub-parts>; default 2]\n  [-e <Number of repeated runs>; default 5] \n  [-p<Proportion of repeated runs for extracting common features>; default 0.8]\n  [-t <Thread number>; default 4]\n  [-v (Display version number)]\n  [-h (Display this help message)]')
 		sys.exit(0)
 	elif(opt == '-v'):
 		print("CVFS.py version", VERSION)
-		print("Developed by Ming-Ren Yang and Yu-Wei Wu at Taipei Medical University, 2021")
+		print("Developed by Ming-Ren Yang and Yu-Wei Wu at Taipei Medical University, 2023")
 		sys.exit(0)
 	elif opt == '-i':
 		inputfile = arg
