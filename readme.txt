@@ -51,18 +51,6 @@ Example command:
 	(Run with 3 disjoint sub-parts, 10 repeated runs, and 0.6 common feature run proportion)
 	$ python3 CVFS.py -i ampicillin.csv -o ampicillin.out -c 3 -e 10 -p 0.6 
 
-Contributing authors
-Ming-Ren Yang and Yu-Wei Wu
-Graduate Institute of Biomedical Informatics, Taipei Medical University, Taipei, Taiwan
-
-Version
-0.1002
-
-License
-MIT License
-
-Copyright (c) 2023 Ming-Ren Yang and Yu-Wei Wu
-
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -85,3 +73,16 @@ If you use CVFS in your work please cite:
 Ming-Ren Yang and Yu-Wei Wu, "A Cross-Validated Feature Selection (CVFS) approach for extracting 
 the most parsimonious feature sets and discovering potential antimicrobial resistance (AMR) biomarkers", 
 Computational and Structural Biotechnology Journal, 21:769-779, 2023.
+
+
+Contributing authors
+Ming-Ren Yang and Yu-Wei Wu
+Graduate Institute of Biomedical Informatics, Taipei Medical University, Taipei, Taiwan
+
+Version
+0.1002
+
+License
+MIT License
+
+Copyright (c) 2023 Ming-Ren Yang and Yu-Wei Wu
